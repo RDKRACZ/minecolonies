@@ -283,7 +283,7 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
     @Override
     public boolean walkToConstructionSite(final BlockPos currentBlock)
     {
-        if (BlockPosUtil.getDistance2D(worker.blockPosition(), currentBlock) < 10)
+        if (BlockPosUtil.getDistance2D(worker.blockPosition(), currentBlock) < 5.0)
         {
             return true;
         }
