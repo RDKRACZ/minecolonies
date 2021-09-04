@@ -538,6 +538,11 @@ public final class NbtTagConstants
     public static final String TAG_PROGRESS_POS = "newProgressPos";
 
     /**
+     * Tag to store the last result.
+     */
+    public static final String TAG_LAST_RESULT = "lastResult";
+
+    /**
      * Tags to store the needed resourced to nbt.
      */
     public static final String TAG_PROGRESS_STAGE = "newProgressStage";

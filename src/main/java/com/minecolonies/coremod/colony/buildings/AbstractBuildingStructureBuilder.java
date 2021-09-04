@@ -1,5 +1,6 @@
 package com.minecolonies.coremod.colony.buildings;
 
+import com.ldtteam.structurize.placement.BlockPlacementResult;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.crafting.ItemStorage;
@@ -60,6 +61,11 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuildingW
      * all the fluids to be removed in fluids_remove.
      */
     private Map<Integer, List<BlockPos>> fluidsToRemove = new LinkedHashMap<>();
+
+    /**
+     * Last placement result.
+     */
+    private BlockPlacementResult.Result lastResult;
 
     /**
      * Public constructor of the building, creates an object of the building.
@@ -204,6 +210,11 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuildingW
             progressStage = BuildingStructureHandler.Stage.values()[compound.getInt(TAG_PROGRESS_STAGE)];
         }
 
+        if (compound.contains(TAG_LAST_RESULT))
+        {
+            lastResult = BlockPlacementResult.Result.values()[compound.getInt(TAG_LAST_RESULT)];
+        }
+
         if (compound.contains(TAG_FLUIDS_REMOVE))
         {
             fluidsToRemove.clear();
@@ -229,6 +240,11 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuildingW
         {
             BlockPosUtil.write(compound, TAG_PROGRESS_POS, progressPos);
             compound.putInt(TAG_PROGRESS_STAGE, progressStage.ordinal());
+        }
+
+        if (lastResult != null)
+        {
+            compound.putInt(TAG_LAST_RESULT, lastResult.ordinal());
         }
 
         final ListNBT fluidsToRemove = new ListNBT();
@@ -341,11 +357,11 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuildingW
 
     /**
      * Set the progress position of the builder.
-     *
-     * @param blockPos the last blockPos.
+     *  @param blockPos the last blockPos.
      * @param stage    the stage to set.
+     * @param result
      */
-    public void setProgressPos(final BlockPos blockPos, final BuildingStructureHandler.Stage stage)
+    public void setProgressPos(final BlockPos blockPos, final BuildingStructureHandler.Stage stage, final BlockPlacementResult.Result result)
     {
         this.progressPos = blockPos;
         if (this.progressCounter > COUNT_TO_STORE_POS || blockPos == null || stage != progressStage)
@@ -358,6 +374,7 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuildingW
             this.progressCounter++;
         }
         this.progressStage = stage;
+        this.lastResult = result;
     }
 
     /**
@@ -432,5 +449,15 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuildingW
     public BuilderBucket getNextBucket()
     {
         return getFirstModuleOccurance(BuildingResourcesModule.class).getNextBucket();
+    }
+
+    /**
+     * Get the last result
+     * @return the last result or null.
+     */
+    @Nullable
+    public BlockPlacementResult.Result getLastResult()
+    {
+        return lastResult;
     }
 }

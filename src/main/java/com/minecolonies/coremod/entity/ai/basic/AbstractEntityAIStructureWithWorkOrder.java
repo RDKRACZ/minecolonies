@@ -76,9 +76,9 @@ public abstract class AbstractEntityAIStructureWithWorkOrder<J extends AbstractJ
     }
 
     @Override
-    public void storeProgressPos(final BlockPos blockPos, final BuildingStructureHandler.Stage stage)
+    public void storeProgressPos(final BlockPos blockPos, final BuildingStructureHandler.Stage stage, final BlockPlacementResult.Result result)
     {
-        getOwnBuilding().setProgressPos(blockPos, stage);
+        getOwnBuilding().setProgressPos(blockPos, stage, result);
     }
 
     @Override
@@ -433,7 +433,7 @@ public abstract class AbstractEntityAIStructureWithWorkOrder<J extends AbstractJ
             job.setWorkOrder(null);
             resetCurrentStructure();
             getOwnBuilding().cancelAllRequestsOfCitizen(worker.getCitizenData());
-            getOwnBuilding().setProgressPos(null, BuildingStructureHandler.Stage.CLEAR);
+            getOwnBuilding().setProgressPos(null, BuildingStructureHandler.Stage.CLEAR, null);
             return true;
         }
         return job.getWorkOrder() != null && (!WorldUtil.isBlockLoaded(world, job.getWorkOrder().getSchematicLocation())) && getState() != PICK_UP_RESIDUALS;

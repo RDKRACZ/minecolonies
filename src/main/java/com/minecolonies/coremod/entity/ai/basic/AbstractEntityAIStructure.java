@@ -75,11 +75,6 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
     protected Tuple<StructurePlacer, BuildingStructureHandler<J, B>> structurePlacer;
 
     /**
-     * If the structure state is currently reached limit rather than block placement.
-     */
-    private boolean limitReached = false;
-
-    /**
      * Different item check result possibilities.
      */
     public enum ItemCheckResult
@@ -288,12 +283,10 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
             structurePlacer.getB().setStage(getProgressPos().getB());
         }
 
-        if (!limitReached && !walkToConstructionSite(worldPos))
+        if (!walkToConstructionSite(worldPos))
         {
             return getState();
         }
-
-        limitReached = false;
 
         final StructurePhasePlacementResult result;
         final StructurePlacer placer = structurePlacer.getA();
@@ -389,16 +382,13 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
             getOwnBuilding().nextStage();
             if (!structurePlacer.getB().nextStage())
             {
-                getOwnBuilding().setProgressPos(null, null);
+                getOwnBuilding().setProgressPos(null, null, null);
                 return COMPLETE_BUILD;
             }
 
         }
-        else if (result.getBlockResult().getResult() == BlockPlacementResult.Result.LIMIT_REACHED)
-        {
-            this.limitReached = true;
-        }
-        this.storeProgressPos(result.getIteratorPos(), structurePlacer.getB().getStage());
+
+        this.storeProgressPos(result.getIteratorPos(), structurePlacer.getB().getStage(), result.getBlockResult().getResult());
 
         if (result.getBlockResult().getResult() == BlockPlacementResult.Result.MISSING_ITEMS)
         {
@@ -667,11 +657,11 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
 
     /**
      * Store the progressPos in the building if possible for the worker.
-     *
-     * @param blockPos the progressResult.
+     *  @param blockPos the progressResult.
      * @param stage    the current stage.
+     * @param result the last result.
      */
-    public void storeProgressPos(final BlockPos blockPos, final BuildingStructureHandler.Stage stage)
+    public void storeProgressPos(final BlockPos blockPos, final BuildingStructureHandler.Stage stage, final BlockPlacementResult.Result result)
     {
         /*
          * Override if needed.
@@ -817,7 +807,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
     {
         workFrom = null;
         structurePlacer = null;
-        getOwnBuilding().setProgressPos(null, null);
+        getOwnBuilding().setProgressPos(null, null, null);
     }
 
     /**

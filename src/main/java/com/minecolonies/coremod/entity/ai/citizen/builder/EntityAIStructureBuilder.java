@@ -1,5 +1,6 @@
 package com.minecolonies.coremod.entity.ai.citizen.builder;
 
+import com.ldtteam.structurize.placement.BlockPlacementResult;
 import com.ldtteam.structurize.placement.StructurePlacer;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.colony.buildings.IBuilding;
@@ -193,7 +194,7 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
         if (!job.hasWorkOrder())
         {
             getOwnBuilding().searchWorkOrder();
-            getOwnBuilding().setProgressPos(null, BuildingStructureHandler.Stage.CLEAR);
+            getOwnBuilding().setProgressPos(null, BuildingStructureHandler.Stage.CLEAR, null);
             return false;
         }
 
@@ -202,7 +203,7 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
         if (wo == null)
         {
             job.setWorkOrder(null);
-            getOwnBuilding().setProgressPos(null, null);
+            getOwnBuilding().setProgressPos(null, null, null);
             return false;
         }
 
@@ -282,9 +283,22 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
     @Override
     public boolean walkToConstructionSite(final BlockPos currentBlock)
     {
+        if (BlockPosUtil.getDistance2D(worker.blockPosition(), currentBlock) < 10)
+        {
+            return true;
+        }
+
         if (workFrom == null)
         {
-            workFrom = findRandomPositionToWalkTo(5, currentBlock);
+            if (getOwnBuilding().getLastResult() == BlockPlacementResult.Result.LIMIT_REACHED)
+            {
+                workFrom = findRandomPositionToWalkTo(5, worker.blockPosition());
+            }
+            else
+            {
+                workFrom = findRandomPositionToWalkTo(5, currentBlock);
+            }
+
             if (workFrom == null && pathBackupFactor > 10)
             {
                 workFrom = worker.blockPosition();
@@ -308,6 +322,7 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
             pathBackupFactor--;
         }
 
+        workFrom = null;
         return true;
     }
 
